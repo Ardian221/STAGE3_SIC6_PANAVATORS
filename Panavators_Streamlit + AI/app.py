@@ -49,7 +49,17 @@ def load_data(collection):
 # Streamlit Config
 st.set_page_config(page_title="SMAPPA", layout="wide")
 st.title("🌬️ _SMAPPA_")
-st.markdown(" _Smart Air Purifier By Panavators_")
+st.subheader("_Smart Air Purifier by Panavators_")
+st.markdown("""
+<div style='display: flex; justify-content: flex-start; font-size: 0.8rem; color: gray; gap: 10px; margin-top: 10px;'>
+    <div>Created by Panavators</div>
+    <div>|</div>
+    <div>Supported by MAN 1 KOTA SUKABUMI</div>
+    <div>|</div>
+    <div>Powered by HuggingFace</div>
+</div>
+""", unsafe_allow_html=True)
+
 st.divider()
 
 # Menu & Refresh
