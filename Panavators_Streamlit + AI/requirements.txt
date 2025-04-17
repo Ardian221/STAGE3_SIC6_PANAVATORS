@@ -1,6 +1,0 @@
-wheel
-streamlit==1.44.1
-pandas==2.2.3
-joblib==1.4.2
-pymongo==4.12.0
-scikit-learn==1.6.1
