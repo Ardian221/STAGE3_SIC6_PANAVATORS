@@ -87,7 +87,7 @@ if menu == "📈 Monitoring Data":
         if "audio_file" in df.columns:
             df_audio = df.dropna(subset=["audio_file"]).sort_values("timestamp", ascending=False)
             if not df_audio.empty:
-                df_audio = df_audio.head(10)  # Ambil hingga 10 data terakhir
+                df_audio = df_audio.head(3)  # Ambil hingga 3 data terakhir
                 df_audio["display"] = df_audio["timestamp"].dt.strftime("%Y-%m-%d %H:%M:%S")
 
                 selected_display = st.selectbox(
@@ -99,7 +99,6 @@ if menu == "📈 Monitoring Data":
                 try:
                     audio_base64 = selected_row["audio_file"]
                     audio_bytes = base64.b64decode(audio_base64)
-                    st.write(f"🎵 Ukuran file audio: `{len(audio_bytes)} bytes`")  # Debug
                     audio_buffer = io.BytesIO(audio_bytes)
                     st.audio(audio_buffer, format="audio/wav")
                     st.caption("_*Klik tombol Play secara manual. Streamlit tidak mendukung autoplay audio._")
