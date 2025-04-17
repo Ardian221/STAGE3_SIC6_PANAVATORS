@@ -97,12 +97,16 @@ if menu == "📈 Monitoring Data":
         if "audio_file" in df.columns:
             df_audio = df.dropna(subset=["audio_file"]).sort_values("timestamp", ascending=False)
             if not df_audio.empty:
-                df_audio = df_audio.head(3)  # Ambil hingga 3 data terakhir
-                df_audio["display"] = df_audio["timestamp"].dt.strftime("%Y-%m-%d %H:%M:%S")
+                df_audio = df_audio.head(10)  # Ambil hingga 10 data terakhir
+                df_audio["air_quality"] = df_audio["gas_value"].apply(gas_to_quality)
+                df_audio["display"] = df_audio.apply(
+                    lambda row: f"{row['timestamp'].strftime('%Y-%m-%d %H:%M:%S')} - {row['air_quality']}", axis=1
+                )
 
                 selected_display = st.selectbox(
-                    "🎧 Pilih Waktu Data Audio",
-                    options=df_audio["display"], help="Audio dari data dengan kualitas udara buruk"
+                    "🎧 Pilih Waktu & Kualitas Udara Audio",
+                    options=df_audio["display"],
+                    help="Audio dari data dengan kualitas udara yang direkam"
                 )
 
                 selected_row = df_audio[df_audio["display"] == selected_display].iloc[0]
@@ -111,11 +115,13 @@ if menu == "📈 Monitoring Data":
                     audio_bytes = base64.b64decode(audio_base64)
                     audio_buffer = io.BytesIO(audio_bytes)
                     st.audio(audio_buffer, format="audio/wav")
-                    st.caption("_*Klik tombol Play secara manual. Streamlit tidak mendukung autoplay audio._")
                 except Exception as e:
                     st.error(f"Gagal memutar audio: {e}")
             else:
                 st.info("Tidak ada data dengan audio.")
+            st.write(f"Ukuran audio: {len(audio_bytes)} bytes")
+            st.caption("_*Klik tombol Play secara manual. Streamlit tidak mendukung autoplay audio._")
+
 
 # Prediksi Page
 elif menu == "🔮 Prediksi AI":
