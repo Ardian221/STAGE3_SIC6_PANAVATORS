@@ -63,8 +63,12 @@ st.markdown("""
 st.divider()
 
 # Menu & Refresh
-menu = st.sidebar.selectbox("Pilih Menu", ["📈 Monitoring Data", "🔮 Prediksi AI"])
-refresh = st.sidebar.checkbox("🔄 Auto-refresh data (30 detik)", value=True)
+with st.sidebar:
+    st.markdown("## 🛠️ Menu Utama")
+    menu = st.selectbox("📋 Pilih Menu", ["📈 Monitoring Data", "🔮 Prediksi AI"])
+    st.divider()
+    st.markdown("## ⚙️ Pengaturan")
+    refresh = st.checkbox("🔄 Auto-refresh data (30 detik)", value=True)
 
 model, encoder = load_model()
 collection = load_mongodb()
@@ -97,12 +101,16 @@ if menu == "📈 Monitoring Data":
         if "audio_file" in df.columns:
             df_audio = df.dropna(subset=["audio_file"]).sort_values("timestamp", ascending=False)
             if not df_audio.empty:
-                df_audio = df_audio.head(3)  # Ambil hingga 3 data terakhir
-                df_audio["display"] = df_audio["timestamp"].dt.strftime("%Y-%m-%d %H:%M:%S")
+                df_audio = df_audio.head(10)  # Ambil hingga 10 data terakhir
+                df_audio["air_quality"] = df_audio["gas_value"].apply(gas_to_quality)
+                df_audio["display"] = df_audio.apply(
+                    lambda row: f"{row['timestamp'].strftime('%Y-%m-%d %H:%M:%S')} - {row['air_quality']}", axis=1
+                )
 
                 selected_display = st.selectbox(
-                    "🎧 Pilih Waktu Data Audio",
-                    options=df_audio["display"], help="Audio dari data dengan kualitas udara buruk"
+                    "🎧 Pilih Waktu & Kualitas Udara Audio",
+                    options=df_audio["display"],
+                    help="Audio dari data dengan kualitas udara yang terekam"
                 )
 
                 selected_row = df_audio[df_audio["display"] == selected_display].iloc[0]
@@ -111,11 +119,12 @@ if menu == "📈 Monitoring Data":
                     audio_bytes = base64.b64decode(audio_base64)
                     audio_buffer = io.BytesIO(audio_bytes)
                     st.audio(audio_buffer, format="audio/wav")
-                    st.caption("_*Klik tombol Play secara manual. Streamlit tidak mendukung autoplay audio._")
                 except Exception as e:
                     st.error(f"Gagal memutar audio: {e}")
             else:
                 st.info("Tidak ada data dengan audio.")
+                st.caption("_*Klik tombol Play secara manual. Streamlit tidak mendukung autoplay audio._")
+
 
 # Prediksi Page
 elif menu == "🔮 Prediksi AI":
@@ -133,5 +142,5 @@ elif menu == "🔮 Prediksi AI":
         st.dataframe(input_df)
 
 # Footer
-st.markdown("---")
+st.divider()
 st.caption("🔗 Terhubung ke MongoDB | Panavators SIC6")
