@@ -5,6 +5,7 @@ from pymongo import MongoClient
 from pymongo.server_api import ServerApi
 import base64
 import io
+import os
 
 # Koneksi ke MongoDB
 @st.cache_resource
@@ -18,8 +19,25 @@ def load_mongodb():
 # Load Model
 @st.cache_resource
 def load_model():
-    model = joblib.load("models/air_quality_model.pkl")
-    encoder = joblib.load("models/label_encoder.pkl")
+    
+    base_path = os.path.dirname(__file__)
+    
+    model_path = os.path.join(base_path, "models", "air_quality_model.pkl")
+    encoder_path = os.path.join(base_path, "models", "label_encoder.pkl")
+
+    # Debugging log
+    if not os.path.exists(model_path):
+        st.error(f"Model tidak ditemukan di: {model_path}")
+        raise FileNotFoundError(f"Model tidak ditemukan di: {model_path}")
+
+    if not os.path.exists(encoder_path):
+        st.error(f"Encoder tidak ditemukan di: {encoder_path}")
+        raise FileNotFoundError(f"Encoder tidak ditemukan di: {encoder_path}")
+
+    # Load model dan encoder
+    model = joblib.load(model_path)
+    encoder = joblib.load(encoder_path)
+
     return model, encoder
 
 # Konversi gas_value ke kualitas udara
